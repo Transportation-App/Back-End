@@ -1,23 +1,11 @@
-import express from "express";
-import { NextFunction, Request, Response } from "express";
+// import { NextFunction, Request, Response } from "express";
 import ConfigureApp from "./config/config";
 import ticketsRouter from "./routes/tickets";
-import cors from "cors";
 
 const { app } = ConfigureApp();
 
-var routesVersioning = require("express-routes-versioning")();
+// var routesVersioning = require("express-routes-versioning")();
 const port = process.env.PORT;
-
-app.use(express.json());
-
-app.use(
-  cors({
-    origin: "*", // Allow requests from all origins, or specify specific origins
-    methods: ["GET", "POST", "PATCH", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"], // Allow Content-Type header
-  })
-);
 
 app.use("/tickets", ticketsRouter);
 
