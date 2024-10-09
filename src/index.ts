@@ -1,30 +1,30 @@
-import express, { Express, NextFunction, Request, Response } from "express";
+import express, { Express } from "express";
 import dotenv from "dotenv";
+import cors from "cors";
+import { PostgresConnector } from "./Database";
 
 dotenv.config();
 
 const app: Express = express();
-var routesVersioning = require("express-routes-versioning")();
 const port = process.env.PORT || 3000;
+const postgreDb = new PostgresConnector();
 
-// Endpoint - get itineraries' list
-app.get(
-	"/itineraries",
-	routesVersioning({
-		"1.0.0": itinerariesV1,
-        "2.0.0": itinerariesV2
-	})
+app.use(cors(), express.json(), express.urlencoded({ extended: true }));
+
+// Endpoints
+
+app.post(
+	"/read",
+	(req, res, next) => {
+		if (Object.keys(req.body).length === 0)
+			res.status(404).send("No request body");
+		else next();
+	},
+	async (req, res) => {
+		const data = await postgreDb.read(req.body.table, req.body.columns);
+		res.send(data);
+	}
 );
-
-function itinerariesV1(req: Request, res: Response, next: NextFunction) {
-    console.log(req.header("accept-version"));
-	res.status(200).send("ok v1");
-}
-
-function itinerariesV2(req: Request, res: Response, next: NextFunction) {
-    console.log(req.header("accept-version"));
-	res.status(200).send("ok v2");
-}
 
 app.listen(port, () => {
 	console.log(`[server]: Server is running at http://localhost:${port}`);
