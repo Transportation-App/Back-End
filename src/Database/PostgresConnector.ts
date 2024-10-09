@@ -7,6 +7,7 @@ class PostgresConnector {
 		post: process.env.Postgre_Port,
 		database: process.env.Postgre_Database,
 	};
+	CASS_NAME = "PostgresConnector";
 
 	constructor() {
 		// initialize postgre client
@@ -17,10 +18,10 @@ class PostgresConnector {
 		this.client
 			.connect()
 			.then(() => {
-				console.log("Connection Succeed");
+				console.log(`[${this.CASS_NAME}]: Connection Succeed`);
 			})
 			.catch(() => {
-				console.log("Connection Failed");
+				console.log(`[${this.CASS_NAME}]: Connection Failed`);
 			});
 	}
 
