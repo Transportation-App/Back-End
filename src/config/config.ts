@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import DBConnector from "../database/index";
 import cors from "cors";
 import Stripe from "stripe";
+import bodyParser from "body-parser";
 
 function ConfigureApp() {
   // Initialize .env files
@@ -19,9 +20,10 @@ function ConfigureApp() {
     cors({
       origin: "*", // Allow requests from all origins, or specify specific origins
       methods: ["GET", "POST", "PATCH", "DELETE"],
-      allowedHeaders: ["Content-Type", "Authorization"], // Allow Content-Type header
+      allowedHeaders: ["Content-Type", "Authorization", "stripe-signature"], // Allow Content-Type header
     })
   );
+
   // Initialize Stripe
   const stripe = new Stripe(process.env.Stripe_sec_key || "no key", {
     apiVersion: "2024-09-30.acacia",
