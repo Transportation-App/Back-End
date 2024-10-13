@@ -1,4 +1,6 @@
 import { Client, QueryResult } from "pg";
+import dotenv from "dotenv";
+dotenv.config();
 class PostgreConnector {
 	CASS_NAME = "PostgresConnector";
 	DbConfig = {
@@ -14,7 +16,7 @@ class PostgreConnector {
 		this.client
 			.connect()
 			.then(() => console.log(`[${this.CASS_NAME}]: Connection Succeed`))
-			.catch(() => console.log(`[${this.CASS_NAME}]: Connection Failed`));
+			.catch((error) => console.log(`[${this.CASS_NAME}]: Connection Failed -> ${error}`));
 	}
 
 	async makeQuery(
