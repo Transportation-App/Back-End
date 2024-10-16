@@ -1,17 +1,16 @@
 import express, { Router, Request, Response } from "express";
-import { get } from "../services/tickets";
-import { TicketType } from "../types/types";
+import { get, put } from "../services/tickets";
+import { paymentInfo, TicketType } from "../types/types";
 import ConfigureApp from "../config/config";
 import bodyParser from "body-parser";
 import Stripe from "stripe";
+import { getSessionData, storeInCache } from '../middlewares/cacheMiddleware';
 
 const ticketsRouter: Router = express.Router();
 const { stripe } = ConfigureApp();
 
-// Use JSON body parser for non-webhook routes
 ticketsRouter.use(bodyParser.raw({ type: "*/*" }));
 
-// Example get route
 ticketsRouter.post("/get", async (req: Request, res: Response) => {
   try {
     const ticketId: string = req.body.id;
@@ -28,11 +27,29 @@ ticketsRouter.post("/get", async (req: Request, res: Response) => {
   }
 });
 
-// Create Payment Intent
+ticketsRouter.put("/put", async (req: Request, res: Response) => {
+  try {
+    const {itinID, selectedSeats, isRes}: {itinID: string, selectedSeats: number[], isRes: boolean} = req.body;
+
+    const response: {expiryTime: number; updated: boolean} | null = await put(itinID, selectedSeats, isRes)
+
+    if(response) {
+      res.status(200).json({success: true, message: "Your seats were succesfully booked for 8 minutes untill the payment is done!", data: response})
+    }
+    else {
+      res.status(400).json({success: false, message: "something went wrong!"})
+    }
+
+  } catch (error) { 
+    console.error("Error retrieving ticket:", error);
+    res.status(500).json({ message: "There is no itinerary with this id!" });
+  }
+});
+
 ticketsRouter.post(
   "/create-payment-intent",
-  async (req: Request, res: Response) => {
-    const { amount } = req.body;
+  async (req: Request<{},{}, paymentInfo>, res: Response) => {
+    const { totalPrice, formData } = req.body;   
 
     try {
       const session = await stripe.checkout.sessions.create({
@@ -44,23 +61,28 @@ ticketsRouter.post(
               product_data: {
                 name: "Your Product Name",
               },
-              unit_amount: amount,
+              unit_amount: totalPrice,
             },
             quantity: 1,
           },
         ],
         mode: "payment",
-        success_url: "http://192.168.2.5:3000/checkout",
-        cancel_url: "http://192.168.2.5:3000/checkout",
+        success_url: `http://192.168.56.1:3000/receipt/{CHECKOUT_SESSION_ID}`,
+        cancel_url: "http://192.168.56.1:3000/checkout",
       });
-      res.json({ url: session.url });
+      const isStored: boolean = storeInCache(session.id, {totalPrice, formData})
+      if(isStored) {
+        res.status(200).json({url: session.url})
+      }
+      else {
+        res.status(400).json({message: "Payment session wasnt stored! Please try again later"})
+      }
     } catch (error) {
       res.status(500).json({ error: error });
     }
   }
 );
 
-// Webhook route - must use raw body parser
 ticketsRouter.post(
   "/webhook",
   express.raw({ type: "application/json" }), // Raw body for Stripe verification
@@ -75,34 +97,27 @@ ticketsRouter.post(
     let event: Stripe.Event;
 
     try {
-      // Verify event from Stripe
       event = stripe.webhooks.constructEvent(
         payloadString,
         header,
         process.env.STRIPE_WEBHOOK_SECRET || "no key"
       );
-      console.log("✅ Webhook verified successfully:", event.type);
     } catch (err) {
-      console.error("❌ Webhook signature verification failed:", err);
       return response.status(400).send(`Webhook Error: ${err}`);
     }
 
-    // Handle Stripe events
     switch (event.type) {
-      case "payment_intent.succeeded":
-        const paymentIntent = event.data.object;
-        console.log("✅ PaymentIntent succeeded:", paymentIntent);
-        break;
       case "checkout.session.completed":
-        const session = event.data.object;
-        console.log("✅ Checkout Session completed:", session);
-        break;
+        const session = event.data.object as Stripe.Checkout.Session;
+        
+        const data: ({id: string, data: paymentInfo | undefined}) = getSessionData(session.id)
+        
+        //firebase & postgres updates
       default:
-        console.log(`Unhandled event type ${event.type}`);
+        break;
     }
 
-    // Acknowledge receipt of the event
-    response.status(200).send();
+    response.json({received: true});
   }
 );
 

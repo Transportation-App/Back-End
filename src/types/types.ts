@@ -20,6 +20,7 @@ export type SeatType = {
   number: number;
   // type: string;
   isRes: boolean;
+  expiredAt: number
 };
 
 export type StationType = {
@@ -45,4 +46,19 @@ export type TicketType = {
   initPrice: number;
   bus: BusType;
   numberOfPassenger: number;
+};
+
+export type SeatFormData = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  ticketDiscount: number;
+  ticketType: string;
+  ticketPrice: number;
+};
+
+export type paymentInfo = {
+  totalPrice: number;
+  formData: Record<number, SeatFormData>;
 };

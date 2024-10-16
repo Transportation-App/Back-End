@@ -3,7 +3,8 @@ import dotenv from "dotenv";
 import DBConnector from "../database/index";
 import cors from "cors";
 import Stripe from "stripe";
-import bodyParser from "body-parser";
+import http from 'http';
+import WebSocket, { Server as WebSocketServer } from 'ws';
 
 function ConfigureApp() {
   // Initialize .env files
@@ -19,17 +20,20 @@ function ConfigureApp() {
   app.use(
     cors({
       origin: "*", // Allow requests from all origins, or specify specific origins
-      methods: ["GET", "POST", "PATCH", "DELETE"],
+      methods: ["GET", "POST", "PUT", "DELETE"],
       allowedHeaders: ["Content-Type", "Authorization", "stripe-signature"], // Allow Content-Type header
     })
   );
+
+  const server = http.createServer(app);
+  const wsServer = new WebSocketServer({ server });
 
   // Initialize Stripe
   const stripe = new Stripe(process.env.Stripe_sec_key || "no key", {
     apiVersion: "2024-09-30.acacia",
   });
 
-  return { app, dbConnector, stripe };
+  return { app, server, wsServer, dbConnector, stripe };
 }
 
 export default ConfigureApp;

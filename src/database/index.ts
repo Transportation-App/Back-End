@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { child, getDatabase, push, update } from "firebase/database";
+import { child, DatabaseReference, getDatabase, push, update } from "firebase/database";
 import {
   ref,
   set,
@@ -33,10 +33,21 @@ class DBConnector {
   public setValueListener(
     path: string,
     callback: (snapshot: DataSnapshot) => unknown
-  ) {
-    const listenerRef = ref(this.database, path);
-    onValue(listenerRef, callback);
+  ): (() => void) {
+    const listenerRef: DatabaseReference = ref(this.database, path);
+  
+    const unsubscribe = onValue(listenerRef, callback, (error) => {
+      console.error(`Error setting up listener at ${path}:`, error);
+    });
+    
+    console.log(`Listener established on path: ${path}`);
+    
+    return () => {
+      unsubscribe(); 
+      console.log(`Listener removed from path: ${path}`);
+    };
   }
+  
 
   public write(path: string, id: string, data: object) {
     set(ref(this.database, `${path}/${id}`), {
@@ -81,12 +92,18 @@ class DBConnector {
       });
   }
 
-  public update(path: string, id: string, data: object) {
+  public updateOne(path: string, id: string, data: object) {
     const dbRef = ref(this.database, `${path}/${id}`);
     const updates: any = {};
     updates[`${path}/${id}`] = data;
     return update(dbRef, updates);
   }
+
+  public update(path: string, data: object) {
+    const dbRef = ref(this.database, `${path}`);
+    return update(dbRef, data);
+  }
+  
 }
 
 export default DBConnector;

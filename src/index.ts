@@ -1,33 +1,18 @@
 // import { NextFunction, Request, Response } from "express";
 import ConfigureApp from "./config/config";
+import cacheRouter from "./routes/cache";
 import ticketsRouter from "./routes/tickets";
+import { initWebSocketServer } from "./middlewares/webServer";
 
-const { app } = ConfigureApp();
+const { app, server, wsServer } = ConfigureApp();
 
-// var routesVersioning = require("express-routes-versioning")();
 const port = process.env.PORT;
 
 app.use("/tickets", ticketsRouter);
+app.use("/cache", cacheRouter)
 
-// Endpoint - get itineraries' list
-// app.get(
-//   "/itineraries",
-//   routesVersioning({
-//     "1.0.0": itinerariesV1,
-//     "2.0.0": itinerariesV2,
-//   })
-// );
+initWebSocketServer(wsServer)
 
-// function itinerariesV1(req: Request, res: Response, next: NextFunction) {
-//   console.log(req.header("accept-version"));
-//   res.status(200).send("ok v1");
-// }
-
-// function itinerariesV2(req: Request, res: Response, next: NextFunction) {
-//   console.log(req.header("accept-version"));
-//   res.status(200).send("ok v2");
-// }
-
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
 });
