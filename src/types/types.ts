@@ -18,9 +18,7 @@ export type ItineraryType = {
 
 export type SeatType = {
   number: number;
-  // type: string;
-  isRes: boolean;
-  expiredAt: number
+  status: string;
 };
 
 export type StationType = {
@@ -59,6 +57,7 @@ export type SeatFormData = {
 };
 
 export type paymentInfo = {
+  itinID: string;
   totalPrice: number;
   formData: Record<number, SeatFormData>;
 };
