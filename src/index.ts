@@ -1,25 +1,41 @@
 import express, { Express } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import { postCities } from "./Routes/cities";
-import { checkRequestBody } from "./Middlewares/requestbody";
+import { Cities, Itineraries } from "./Routes";
+import { Authentication, Validation } from "./Middlewares";
 
 dotenv.config();
 const app: Express = express();
 const port = process.env.PORT || 3000;
-
-// configuration
-app.use(
-	cors(),
-	express.json(),
-	express.urlencoded({ extended: true })
-);
+const base_url = "/api";
 
 // Middlewares
-app.use(checkRequestBody);
+// Configuration
+app.use(cors(), express.json(), express.urlencoded({ extended: true }));
+
+
+// Validation
+app.get("*", Validation.checkUrlQueryExists);
+app.post("*", Validation.checkRequestBodyExists);
+app.patch("*", Validation.checkRequestBodyExists);
+app.delete("*", Validation.checkRequestBodyExists);
+
+// Initialization
+app.use(base_url + "/cities", Cities.setTable);
+app.use(base_url + "/itineraries", Itineraries.setTable);
 
 // Endpoints
-app.post("/read/cities", postCities);
+// Cities
+app.get(base_url + "/cities", Cities.Get);
+app.post(base_url + "/cities", Cities.Post);
+app.patch(base_url + "/cities", Cities.Patch);
+app.delete(base_url + "/cities", Cities.Delete);
+
+// Itineraries
+app.get(base_url + "/itineraries", Itineraries.Get);
+app.post(base_url + "/itineraries", Itineraries.Post);
+app.patch(base_url + "/itineraries", Itineraries.Patch);
+app.delete(base_url + "/itineraries", Itineraries.Delete);
 
 // Listeners
 app.listen(port, () => {
