@@ -13,6 +13,8 @@ const base_url = "/api";
 // Configuration
 app.use(cors(), express.json(), express.urlencoded({ extended: true }));
 
+// Authentication
+app.use(Authentication.authenticateRequest);
 
 // Validation
 app.get("*", Validation.checkUrlQueryExists);
