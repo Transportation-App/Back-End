@@ -1,8 +1,8 @@
 import { Request } from "express";
-import { DatabaseTypes } from "../Types";
 import { PostgreConnector } from "../Database";
+import { DatabasesTypes } from "../Types";
 
-export function Get(req: Request, callback: DatabaseTypes.CallbackType): void {
+export function Get(req: Request, callback: DatabasesTypes.CallbackType): void {
 	PostgreConnector.makeSelectQuery({
 		table: req.res?.locals.table,
 		columns: req.query.columns as string,
@@ -10,7 +10,10 @@ export function Get(req: Request, callback: DatabaseTypes.CallbackType): void {
 		callback: callback,
 	});
 }
-export function Post(req: Request, callback: DatabaseTypes.CallbackType): void {
+export function Post(
+	req: Request,
+	callback: DatabasesTypes.CallbackType
+): void {
 	PostgreConnector.makeInsertQuery({
 		table: req.res?.locals.table,
 		insertMapList: JSON.parse(req.body.map),
@@ -20,7 +23,7 @@ export function Post(req: Request, callback: DatabaseTypes.CallbackType): void {
 }
 export function Patch(
 	req: Request,
-	callback: DatabaseTypes.CallbackType
+	callback: DatabasesTypes.CallbackType
 ): void {
 	PostgreConnector.makeUpdateQuery({
 		table: req.res?.locals.table,
@@ -32,7 +35,7 @@ export function Patch(
 }
 export function Delete(
 	req: Request,
-	callback: DatabaseTypes.CallbackType
+	callback: DatabasesTypes.CallbackType
 ): void {
 	PostgreConnector.makeDeleteQuery({
 		table: req.res?.locals.table,

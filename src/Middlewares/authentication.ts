@@ -1,41 +1,29 @@
-import { NextFunction, Request, Response } from "express";
-import { FirebaseApp, initializeApp } from "firebase/app";
-import {
-	Auth,
-	getAuth,
-	signInWithEmailAndPassword,
-	UserCredential,
-} from "firebase/auth";
+import { Request, Response, NextFunction } from "express";
+import { firebaseAdminApp } from "../Config";
+import { Logger } from "../Utilities";
 
-const firebaseConfig = {
-	apiKey: process.env.FireBase_apiKey,
-	authDomain: process.env.FireBase_authDomain,
-	databaseURL: process.env.FireBase_databaseURL,
-	projectId: process.env.FireBase_projectId,
-	storageBucket: process.env.FireBase_storageBucket,
-	messagingSenderId: process.env.FireBase_messagingSenderId,
-	appId: process.env.FireBase_appId,
-	measurementId: process.env.FireBase_mesurementId,
-};
-const app: FirebaseApp = initializeApp(firebaseConfig);
-const auth: Auth = getAuth(app);
+const logger: Logger = new Logger("Authentication");
 
-export async function authenticateRequest(
+export async function verifyToken(
 	req: Request,
 	res: Response,
 	next: NextFunction
 ): Promise<void> {
-	const email = req.header("user-email") as string;
-	const password = req.header("user-password") as string;
+	const idToken = req.cookies.access_token;
+	if (!idToken) {
+		res.status(400).json({ error: "No token provided" });
+		return;
+	}
 	try {
-		const userCredential: UserCredential = await signInWithEmailAndPassword(
-			auth,
-			email,
-			password
-		);
-		console.log(userCredential.user.uid);
+		const decodedToken = await firebaseAdminApp.auth().verifyIdToken(idToken);
+		res.locals.user = decodedToken;
 		next();
-	} catch (error) {
-		res.status(400).send(error);
+	} catch (error: any) {
+		logger.logError(
+			"Error verifying token [%s]: %s",
+			error.code,
+			error.message
+		);
+		res.status(403).json({ error: "Unauthorized" });
 	}
 }

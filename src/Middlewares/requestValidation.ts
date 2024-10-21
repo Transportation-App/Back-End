@@ -1,13 +1,17 @@
 import { NextFunction, Request, Response } from "express";
+import { Logger } from "../Utilities";
+
+const logger: Logger = new Logger("RequestValidation");
 
 export function checkRequestBodyExists(
 	req: Request,
 	res: Response,
 	next: NextFunction
 ): void {
-	if (Object.keys(req.body).length === 0)
-		res.status(404).send("No request body");
-	else next();
+	if (Object.keys(req.body).length === 0) {
+		logger.logError("No request body");
+		res.status(400).json({ error: "Bad Request" });
+	} else next();
 }
 
 export function checkUrlQueryExists(
@@ -15,7 +19,8 @@ export function checkUrlQueryExists(
 	res: Response,
 	next: NextFunction
 ): void {
-    if(Object.keys(req.query).length === 0)
-        res.status(400).send("No query parameters");
-    else next();
+	if (Object.keys(req.query).length === 0) {
+		logger.logError("No query parameters");
+		res.status(400).json({ error: "Bad Request" });
+	} else next();
 }

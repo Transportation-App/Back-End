@@ -1,21 +1,13 @@
 import { Pool, PoolClient } from "pg";
 import { Logger, PostgreUtilities } from "../Utilities";
-import { DatabaseTypes } from "../Types";
-import dotenv from "dotenv";
-dotenv.config();
+import { DatabasesTypes } from "../Types";
+import { postgreConfig } from "../Config";
 
 /**
  * A class responsible for managing PostgreSQL database connections and queries.
  */
 class PostgreConnector {
-	DbConfig = {
-		user: process.env.Postgre_Username,
-		password: process.env.Postgre_Password,
-		host: process.env.Postgre_Host,
-		post: process.env.Postgre_Port,
-		database: process.env.Postgre_Database,
-	};
-	pool = new Pool(this.DbConfig);
+	pool = new Pool(postgreConfig);
 	logger: Logger = new Logger("PostgreConnector");
 
 	constructor() {}
@@ -66,7 +58,7 @@ class PostgreConnector {
 	 * @returns {Promise<void>} Executes the query and handles the result.
 	 */
 	private async makeQuery(
-		params: DatabaseTypes.QueryParamsType
+		params: DatabasesTypes.QueryParamsType
 	): Promise<void> {
 		const { client, text, values, callback } = params;
 		try {
@@ -84,7 +76,7 @@ class PostgreConnector {
 		} catch (error) {
 			await this.rollbackTransaction(client);
 			this.logger.logError("failed query", error);
-			callback(null);
+			callback(undefined);
 		} finally {
 			client.release;
 			this.logger.logWarning("client released");
@@ -97,7 +89,7 @@ class PostgreConnector {
 	 * @returns {Promise<void>} Executes the SELECT query and returns the result via callback.
 	 */
 	async makeSelectQuery(
-		params: DatabaseTypes.SelectRequestType
+		params: DatabasesTypes.SelectRequestType
 	): Promise<void> {
 		const { columns, table, where, callback } = params;
 		const text = PostgreUtilities.generateSelectQuery({
@@ -105,8 +97,13 @@ class PostgreConnector {
 			table,
 			where,
 		});
-		const client = await this.getClient();
-		this.makeQuery({ client, text, callback });
+		try {
+			const client = await this.getClient();
+			this.makeQuery({ client, text, callback });
+		} catch (error) {
+			this.logger.logError("client can't connect");
+			callback(null);
+		}
 	}
 
 	/**
@@ -115,7 +112,7 @@ class PostgreConnector {
 	 * @returns {Promise<void>} Executes the INSERT query and returns the result via callback.
 	 */
 	async makeInsertQuery(
-		params: DatabaseTypes.InsertPequestType
+		params: DatabasesTypes.InsertPequestType
 	): Promise<void> {
 		const { table, insertMapList, returning, callback } = params;
 		const { columns_text, values_text, values } =
@@ -126,8 +123,13 @@ class PostgreConnector {
 			values: values_text,
 			returning,
 		});
-		const client = await this.getClient();
-		this.makeQuery({ client, text, values, callback });
+		try {
+			const client = await this.getClient();
+			this.makeQuery({ client, text, values, callback });
+		} catch (error) {
+			this.logger.logError("client can't connect");
+			callback(null);
+		}
 	}
 
 	/**
@@ -136,7 +138,7 @@ class PostgreConnector {
 	 * @returns {Promise<void>} Executes the UPDATE query and returns the result via callback.
 	 */
 	async makeUpdateQuery(
-		params: DatabaseTypes.UpdatePequestType
+		params: DatabasesTypes.UpdatePequestType
 	): Promise<void> {
 		const { table, updateMapList, where, returning, callback } = params;
 		const assignment = PostgreUtilities.prepareUpdateParams(updateMapList);
@@ -146,8 +148,13 @@ class PostgreConnector {
 			where,
 			returning,
 		});
-		const client = await this.getClient();
-		this.makeQuery({ client, text, callback });
+		try {
+			const client = await this.getClient();
+			this.makeQuery({ client, text, callback });
+		} catch (error) {
+			this.logger.logError("client can't connect");
+			callback(null);
+		}
 	}
 
 	/**
@@ -156,7 +163,7 @@ class PostgreConnector {
 	 * @returns {Promise<void>} Executes the DELETE query and returns the result via callback.
 	 */
 	async makeDeleteQuery(
-		params: DatabaseTypes.DeletePequestType
+		params: DatabasesTypes.DeletePequestType
 	): Promise<void> {
 		const { table, where, returning, callback } = params;
 		const text = PostgreUtilities.generateDeleteQuery({
@@ -164,8 +171,13 @@ class PostgreConnector {
 			where,
 			returning,
 		});
-		const client = await this.getClient();
-		this.makeQuery({ client, text, callback });
+		try {
+			const client = await this.getClient();
+			this.makeQuery({ client, text, callback });
+		} catch (error) {
+			this.logger.logError("client can't connect");
+			callback(null);
+		}
 	}
 }
 

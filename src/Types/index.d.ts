@@ -1,3 +1,3 @@
-import * as DatabaseTypes from "./Database";
+import * as DatabasesTypes from "./Databases";
 
-export { DatabaseTypes };
+export { DatabasesTypes };

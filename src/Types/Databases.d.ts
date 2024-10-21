@@ -1,4 +1,4 @@
-export type CallbackDataType = any[] | number | null;
+export type CallbackDataType = any[] | number | undefined | null;
 
 export type CallbackType = (data: CallbackDataType) => void;
 

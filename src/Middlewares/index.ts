@@ -1,3 +1,3 @@
-import * as Validation from "./requestValidation";
-import * as Authentication from "./authentication";
+import * as Validation from "./RequestValidation";
+import * as Authentication from "./Authentication";
 export { Authentication, Validation };
