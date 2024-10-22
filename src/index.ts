@@ -3,6 +3,7 @@ import ConfigureApp from "./config/config";
 import cacheRouter from "./routes/cache";
 import ticketsRouter from "./routes/tickets";
 import { initWebSocketServer } from "./middlewares/webServer";
+import homeRouter from "./routes/homeRoutes";
 
 const { app, server, wsServer } = ConfigureApp;
 
@@ -10,6 +11,7 @@ const port = process.env.PORT;
 
 app.use("/tickets", ticketsRouter);
 app.use("/cache", cacheRouter);
+app.use("/home", homeRouter);
 
 initWebSocketServer(wsServer);
 
