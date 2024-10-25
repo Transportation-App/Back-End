@@ -82,6 +82,7 @@ class FirebaseConnector {
   ) {
     const dbRef = ref(this.database);
     const paymentRef = child(dbRef, `${path}/${id}`);
+
     get(paymentRef)
       .then((snapshot: DataSnapshot) => {
         if (snapshot.exists()) {

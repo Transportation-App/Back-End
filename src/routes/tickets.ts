@@ -69,6 +69,7 @@ ticketsRouter.post(
     const { itinID, totalPrice, formData } = req.body;
     try {
       const session = await stripe.checkout.sessions.create({
+        expires_at: Math.floor(Date.now() / 1000) + 1800,
         payment_method_types: ["card"],
         line_items: [
           {
@@ -84,13 +85,14 @@ ticketsRouter.post(
         ],
         mode: "payment",
         success_url: `http://192.168.56.1:3000/receipt/{CHECKOUT_SESSION_ID}`,
-        cancel_url: "http://192.168.56.1:3000/checkout",
+        cancel_url: "http://192.168.56.1:3000/decline",
       });
       const isStored: boolean = storeInCache(session.id, {
         itinID,
         totalPrice,
         formData,
       });
+
       if (isStored) {
         res.status(200).json({ url: session.url });
       } else {
@@ -99,6 +101,7 @@ ticketsRouter.post(
         });
       }
     } catch (error) {
+      console.error(error);
       res.status(500).json({ error: error });
     }
   }

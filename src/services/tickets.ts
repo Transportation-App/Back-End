@@ -45,7 +45,7 @@ export const updateSeats = (
       }, {} as Record<number, any>);
 
       fbConnector
-        .update(`Ticket Service/${id}/bus/seats`, seatUpdates)
+        .update(`Ticket Service/${id}/Bus/Seats`, seatUpdates)
         .then(() => {
           resolve({ updated: true });
         })
