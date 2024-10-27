@@ -1,4 +1,4 @@
-import FirebaseConnector from "./FirebaseConnector";
-import PostgreConnector from "./Postgre/PostgreConnector";
+import FirebaseConnector from "./firebaseConnector";
+import PostgreConnector from "./postgreConnector";
 
 export { FirebaseConnector, PostgreConnector };
