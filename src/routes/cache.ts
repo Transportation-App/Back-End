@@ -11,15 +11,23 @@ cacheRouter.use(express.json());
 
 cacheRouter.post(
   "/get",
-  (req: Request<{}, {}, { sessionID: string }>, res: Response) => {
-    const { sessionID } = req.body;
+  (
+    req: Request<{}, {}, { sessionID: string; getSeats?: boolean }>,
+    res: Response
+  ) => {
+    const { sessionID, getSeats } = req.body;
 
     const data: { id: string; data: paymentInfo | undefined } =
       getSessionData(sessionID);
 
     if (data.data) {
-      const receiptData = { id: data.id, totalPrice: data.data.totalPrice };
-      res.status(200).json(receiptData);
+      if (getSeats) {
+        const seats: string[] = Object.keys(data.data.formData);
+        res.status(200).json({ id: data.data.itinID, seats: seats });
+      } else {
+        const receiptData = { id: data.id, totalPrice: data.data.totalPrice };
+        res.status(200).json(receiptData);
+      }
     } else {
       res
         .status(400)

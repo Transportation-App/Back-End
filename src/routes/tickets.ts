@@ -85,7 +85,7 @@ ticketsRouter.post(
         ],
         mode: "payment",
         success_url: `http://192.168.56.1:3000/receipt/{CHECKOUT_SESSION_ID}`,
-        cancel_url: "http://192.168.56.1:3000/decline",
+        cancel_url: "http://192.168.56.1:3000/decline/{CHECKOUT_SESSION_ID}",
       });
       const isStored: boolean = storeInCache(session.id, {
         itinID,
@@ -158,7 +158,7 @@ ticketsRouter.post(
         break;
     }
 
-    response.json({ received: true });
+    // response.json({ received: true });
   }
 );
 
