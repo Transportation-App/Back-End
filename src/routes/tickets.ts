@@ -1,10 +1,10 @@
 import express, { Router, Request, Response } from "express";
-import { get, storeTickets, updateSeats } from "../services/tickets";
-import { paymentInfo, TicketType } from "../types/types";
-import ConfigureApp from "../config/config";
+import { get, storeTickets, updateSeats } from "../Services/tickets";
+import { paymentInfo, TicketType } from "../Types/types";
+import ConfigureApp from "../Config/Config";
 import bodyParser from "body-parser";
 import Stripe from "stripe";
-import { getSessionData, storeInCache } from "../middlewares/cacheMiddleware";
+import { getSessionData, storeInCache } from "../Middlewares/cacheMiddleware";
 
 const ticketsRouter: Router = express.Router();
 const { stripe } = ConfigureApp;
@@ -69,6 +69,7 @@ ticketsRouter.post(
     const { itinID, totalPrice, formData } = req.body;
     try {
       const session = await stripe.checkout.sessions.create({
+        expires_at: Math.floor(Date.now() / 1000) + 1800,
         payment_method_types: ["card"],
         line_items: [
           {
@@ -84,13 +85,14 @@ ticketsRouter.post(
         ],
         mode: "payment",
         success_url: `http://192.168.56.1:3000/receipt/{CHECKOUT_SESSION_ID}`,
-        cancel_url: "http://192.168.56.1:3000/checkout",
+        cancel_url: "http://192.168.56.1:3000/decline/{CHECKOUT_SESSION_ID}",
       });
       const isStored: boolean = storeInCache(session.id, {
         itinID,
         totalPrice,
         formData,
       });
+
       if (isStored) {
         res.status(200).json({ url: session.url });
       } else {
@@ -99,6 +101,7 @@ ticketsRouter.post(
         });
       }
     } catch (error) {
+      console.error(error);
       res.status(500).json({ error: error });
     }
   }
@@ -155,7 +158,7 @@ ticketsRouter.post(
         break;
     }
 
-    response.json({ received: true });
+    // response.json({ received: true });
   }
 );
 

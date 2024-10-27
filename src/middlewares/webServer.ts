@@ -1,6 +1,6 @@
 import WebSocket, { RawData } from "ws";
-import ConfigureApp from "../config/config";
-import { SeatType } from "../types/types";
+import ConfigureApp from "../Config/Config";
+import { SeatType } from "../Types/types";
 import { DataSnapshot } from "firebase/database";
 
 interface ClientMessage {

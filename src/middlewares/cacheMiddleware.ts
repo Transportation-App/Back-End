@@ -1,5 +1,5 @@
 import NodeCache from "node-cache";
-import { paymentInfo } from "../types/types";
+import { paymentInfo } from "../Types/types";
 
 const cache: NodeCache = new NodeCache({ stdTTL: 640 });
 
