@@ -2,8 +2,8 @@ import express, { Router, Request, Response } from "express";
 import {
   checkDataInCache,
   getSessionData,
-} from "../middlewares/cacheMiddleware";
-import { paymentInfo } from "../types/types";
+} from "../Middlewares/cacheMiddleware";
+import { paymentInfo } from "../Types/types";
 
 const cacheRouter: Router = express.Router();
 

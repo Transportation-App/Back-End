@@ -15,7 +15,7 @@ import {
   Database,
 } from "firebase/database";
 
-class FirebaseConnector {
+export default class FirebaseConnector {
   private database: Database;
 
   constructor() {
@@ -110,5 +110,3 @@ class FirebaseConnector {
     return update(dbRef, data);
   }
 }
-
-export default FirebaseConnector;

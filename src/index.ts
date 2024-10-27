@@ -1,27 +1,23 @@
 import express, { Express } from "express";
 import dotenv from "dotenv";
-import dotenvExpand from "dotenv-expand";
 import cors from "cors";
 import { Cities, Itineraries } from "./Routes";
 import { Authentication, Validation } from "./Middlewares";
 import { PostgreConnector } from "./Database";
-import ConfigureApp from "./config/config";
-import cacheRouter from "./routes/cache";
-import ticketsRouter from "./routes/tickets";
-import { initWebSocketServer } from "./middlewares/webServer";
+import ConfigureApp from "./Config/Config";
+import cacheRouter from "./Routes/cache";
+import ticketsRouter from "./Routes/tickets";
+import { initWebSocketServer } from "./Middlewares/webServer";
 
 const { app, server, wsServer } = ConfigureApp;
 
-dotenvExpand.expand(dotenv.config());
 // const app: Express = express();
 const port = process.env.PORT || 3000;
-const postgre = PostgreConnector;
 const base_url = "/api";
 initWebSocketServer(wsServer);
 
 // Middlewares
 // Configuration
-app.use(cors(), express.json(), express.urlencoded({ extended: true }));
 
 app.use("/tickets", ticketsRouter);
 app.use("/cache", cacheRouter);

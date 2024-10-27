@@ -1,10 +1,10 @@
 import express, { Router, Request, Response } from "express";
-import { get, storeTickets, updateSeats } from "../services/tickets";
-import { paymentInfo, TicketType } from "../types/types";
-import ConfigureApp from "../config/config";
+import { get, storeTickets, updateSeats } from "../Services/tickets";
+import { paymentInfo, TicketType } from "../Types/types";
+import ConfigureApp from "../Config/Config";
 import bodyParser from "body-parser";
 import Stripe from "stripe";
-import { getSessionData, storeInCache } from "../middlewares/cacheMiddleware";
+import { getSessionData, storeInCache } from "../Middlewares/cacheMiddleware";
 
 const ticketsRouter: Router = express.Router();
 const { stripe } = ConfigureApp;
