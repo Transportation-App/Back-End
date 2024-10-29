@@ -1,5 +1,5 @@
 import express, { Router, Request, Response } from "express";
-import { get, storeTickets, updateSeats } from "../Services/tickets";
+import { getBus, storeTickets, updateSeats } from "../Services/TicketsService";
 import { paymentInfo, TicketType } from "../Types/types";
 import ConfigureApp from "../Config/Config";
 import bodyParser from "body-parser";
@@ -14,7 +14,7 @@ ticketsRouter.use(bodyParser.raw({ type: "*/*" }));
 ticketsRouter.post("/get", async (req: Request, res: Response) => {
   try {
     const ticketId: string = req.body.id;
-    const retrievedData: TicketType | null = await get(ticketId);
+    const retrievedData: TicketType | null = await getBus(ticketId);
 
     if (retrievedData) {
       res.status(200).json(retrievedData);

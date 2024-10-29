@@ -1,17 +1,12 @@
-import express, { Express } from "express";
-import dotenv from "dotenv";
-import cors from "cors";
 import { Cities, Itineraries } from "./Routes";
 import { Authentication, Validation } from "./Middlewares";
-import { PostgreConnector } from "./Database";
 import ConfigureApp from "./Config/Config";
-import cacheRouter from "./Routes/cache";
-import ticketsRouter from "./Routes/tickets";
+import cacheRouter from "./Routes/CacheRouter";
+import { ticketsRouter } from "./Routes";
 import { initWebSocketServer } from "./Middlewares/webServer";
 
 const { app, server, wsServer } = ConfigureApp;
 
-// const app: Express = express();
 const port = process.env.PORT || 3000;
 const base_url = "/api";
 initWebSocketServer(wsServer);
@@ -24,7 +19,7 @@ app.use("/cache", cacheRouter);
 
 // Validation
 // app.get("*", Validation.checkUrlQueryExists);
-app.post("*", Validation.checkRequestBodyExists);
+// app.post("*", Validation.checkRequestBodyExists);
 app.patch("*", Validation.checkRequestBodyExists);
 app.delete("*", Validation.checkRequestBodyExists);
 

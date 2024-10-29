@@ -1,10 +1,6 @@
-import dotenv from "dotenv";
-import dotenvExpand from "dotenv-expand";
 import { Sequelize } from "sequelize";
 import { Logger } from "../../Utilities";
 import { Models } from "./Models";
-dotenvExpand.expand(dotenv.config());
-
 /**
  * A class responsible for managing PostgreSQL database connections and queries.
  */
