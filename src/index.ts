@@ -1,20 +1,15 @@
-import express, { Express } from "express";
-import dotenv from "dotenv";
-import cors from "cors";
 import { Cities, Itineraries } from "./Routes";
-import { Authentication, Validation } from "./Middlewares";
-import { PostgreConnector } from "./Database";
+import { Validation, WebServer } from "./Middlewares";
 import ConfigureApp from "./Config/Config";
-import cacheRouter from "./Routes/cache";
-import ticketsRouter from "./Routes/tickets";
-import { initWebSocketServer } from "./Middlewares/webServer";
+import cacheRouter from "./Routes/CacheRoute";
+import ticketsRouter from "./Routes/TicketsRoute";
 
 const { app, server, wsServer } = ConfigureApp;
 
 // const app: Express = express();
 const port = process.env.PORT || 3000;
 const base_url = "/api";
-initWebSocketServer(wsServer);
+WebServer.initWebSocketServer(wsServer);
 
 // Middlewares
 // Configuration
