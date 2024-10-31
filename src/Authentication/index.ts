@@ -1,2 +1,2 @@
-import * as FirebaseAuth from "./FirebaseAuth";
-export { FirebaseAuth };
+import FirebaseAuthController from "./FirebaseAuthController";
+export { FirebaseAuthController };

@@ -1,13 +1,12 @@
 import { Cities, Itineraries } from "./Routes";
-import {Authentication, Validation, WebServer } from "./Middlewares";
-import ConfigureApp from "./Config";
+import { Authentication, Validation, WebServer } from "./Middlewares";
+import Configuration from "./Config";
 import cacheRouter from "./Routes/CacheRoute";
 import ticketsRouter from "./Routes/TicketsRoute";
-import { FirebaseAuth } from "./Authentication";
+import { FirebaseAuthController } from "./Authentication";
 
-const { app, server, wsServer } = ConfigureApp;
+const { app, server, wsServer } = Configuration;
 
-// const app: Express = express();
 const port = process.env.PORT || 3000;
 const base_api_url = "/api";
 const base_auth_url = "/auth";
@@ -21,9 +20,9 @@ app.use("/cache", cacheRouter);
 
 // Validation
 // app.get("*", Validation.checkUrlQueryExists);
-app.post("*", Validation.checkRequestBodyExists);
-app.patch("*", Validation.checkRequestBodyExists);
-app.delete("*", Validation.checkRequestBodyExists);
+app.post(base_api_url + "/*", Validation.checkRequestBodyExists);
+app.patch(base_api_url + "/*", Validation.checkRequestBodyExists);
+app.delete(base_api_url + "/*", Validation.checkRequestBodyExists);
 
 // Authentication
 app.use(base_api_url + "/*", Authentication.verifyToken);
@@ -32,16 +31,15 @@ app.use(base_api_url + "/*", Authentication.verifyToken);
 // Login
 app.post(
 	base_auth_url + "/register",
-	FirebaseAuth.AuthController.registerUser
+	Validation.checkCredentialsExists,
+	FirebaseAuthController.registerUser
 );
 app.post(
 	base_auth_url + "/login",
-	FirebaseAuth.AuthController.loginUser
+	Validation.checkCredentialsExists,
+	FirebaseAuthController.loginUser
 );
-app.post(
-	base_auth_url + "/logout",
-	FirebaseAuth.AuthController.logoutUser
-);
+app.post(base_auth_url + "/logout", FirebaseAuthController.logoutUser);
 
 // Cities
 app.get(base_api_url + "/cities/:full?", Cities.Get);
@@ -57,5 +55,5 @@ app.delete(base_api_url + "/itineraries", Itineraries.Delete);
 
 // Listeners
 server.listen(port, () => {
-  console.log(`[server]: Server is running at http://localhost:${port}`);
+	console.log(`[server]: Server is running at http://localhost:${port}`);
 });

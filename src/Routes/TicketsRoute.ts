@@ -1,13 +1,13 @@
 import express, { Router, Request, Response } from "express";
 import { get, storeTickets, updateSeats } from "../Services/Tickets";
 import { paymentInfo, TicketType } from "../Types/types";
-import ConfigureApp from "../Config/Config";
+import Configuration from "../Config";
 import bodyParser from "body-parser";
 import Stripe from "stripe";
 import { Cache } from "../Middlewares";
 
 const ticketsRouter: Router = express.Router();
-const { stripe } = ConfigureApp;
+const { stripe } = Configuration;
 
 ticketsRouter.use(bodyParser.raw({ type: "*/*" }));
 

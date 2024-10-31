@@ -24,3 +24,16 @@ export function checkUrlQueryExists(
 		res.status(400).json({ error: "Bad Request" });
 	} else next();
 }
+
+export function checkCredentialsExists(
+	req: Request,
+	res: Response,
+	next: NextFunction
+): void {
+	if (!req.body.email || !req.body.password) {
+		logger.logError("Undefined credentials");
+		res.status(400).json({ error: "Undefined credentials" });
+	} else {
+		next();
+	}
+}
