@@ -1,14 +1,15 @@
 import { Cities, Itineraries } from "./Routes";
-import { Validation, WebServer } from "./Middlewares";
-import ConfigureApp from "./Config/Config";
+import { Authentication, Validation, WebServer } from "./Middlewares";
+import Configuration from "./Config";
 import cacheRouter from "./Routes/CacheRoute";
 import ticketsRouter from "./Routes/TicketsRoute";
+import { FirebaseAuthController } from "./Authentication";
 
-const { app, server, wsServer } = ConfigureApp;
+const { app, server, wsServer } = Configuration;
 
-// const app: Express = express();
 const port = process.env.PORT || 3000;
-const base_url = "/api";
+const base_api_url = "/api";
+const base_auth_url = "/auth";
 WebServer.initWebSocketServer(wsServer);
 
 // Middlewares
@@ -19,24 +20,40 @@ app.use("/cache", cacheRouter);
 
 // Validation
 // app.get("*", Validation.checkUrlQueryExists);
-app.post("*", Validation.checkRequestBodyExists);
-app.patch("*", Validation.checkRequestBodyExists);
-app.delete("*", Validation.checkRequestBodyExists);
+app.post(base_api_url + "/*", Validation.checkRequestBodyExists);
+app.patch(base_api_url + "/*", Validation.checkRequestBodyExists);
+app.delete(base_api_url + "/*", Validation.checkRequestBodyExists);
+
+// Authentication
+app.use(base_api_url + "/*", Authentication.verifyToken);
 
 // Endpoints
+// Login
+app.post(
+	base_auth_url + "/register",
+	Validation.checkCredentialsExists,
+	FirebaseAuthController.registerUser
+);
+app.post(
+	base_auth_url + "/login",
+	Validation.checkCredentialsExists,
+	FirebaseAuthController.loginUser
+);
+app.post(base_auth_url + "/logout", FirebaseAuthController.logoutUser);
+
 // Cities
-app.get(base_url + "/cities/:full?", Cities.Get);
-app.post(base_url + "/cities", Cities.Post);
-app.patch(base_url + "/cities", Cities.Patch);
-app.delete(base_url + "/cities", Cities.Delete);
+app.get(base_api_url + "/cities/:full?", Cities.Get);
+app.post(base_api_url + "/cities", Cities.Post);
+app.patch(base_api_url + "/cities", Cities.Patch);
+app.delete(base_api_url + "/cities", Cities.Delete);
 
 // Itineraries
-app.get(base_url + "/itineraries/:full?", Itineraries.Get);
-app.post(base_url + "/itineraries", Itineraries.Post);
-app.patch(base_url + "/itineraries", Itineraries.Patch);
-app.delete(base_url + "/itineraries", Itineraries.Delete);
+app.get(base_api_url + "/itineraries/:full?", Itineraries.Get);
+app.post(base_api_url + "/itineraries", Itineraries.Post);
+app.patch(base_api_url + "/itineraries", Itineraries.Patch);
+app.delete(base_api_url + "/itineraries", Itineraries.Delete);
 
 // Listeners
 server.listen(port, () => {
-  console.log(`[server]: Server is running at http://localhost:${port}`);
+	console.log(`[server]: Server is running at http://localhost:${port}`);
 });

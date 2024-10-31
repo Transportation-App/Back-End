@@ -1,3 +1,4 @@
 import Logger from "./Logger";
+import { http_status } from "./RouteUtilities";
 
-export { Logger };
+export { Logger, http_status};

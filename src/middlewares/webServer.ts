@@ -1,5 +1,5 @@
 import WebSocket, { RawData } from "ws";
-import ConfigureApp from "../Config/Config";
+import Configuration from "../Config";
 import { SeatType } from "../Types/types";
 import { DataSnapshot } from "firebase/database";
 
@@ -8,7 +8,7 @@ interface ClientMessage {
   data: { itinID: string; selectedSeats: number[] };
 }
 
-const { fbConnector } = ConfigureApp;
+const { fbConnector } = Configuration;
 const clients = new Set<WebSocket>();
 
 export function initWebSocketServer(wsServer: WebSocket.Server) {
