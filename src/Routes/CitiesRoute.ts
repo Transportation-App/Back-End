@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response, Router } from "express";
-import { Models, Utils } from "../Databases/Postgres/Models";
+import { Models, Utils } from "../Database/Postgres/Models";
 import { Validation } from "../Middlewares";
 
 const citiesRouter: Router = Router();
