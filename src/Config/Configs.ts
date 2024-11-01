@@ -8,7 +8,7 @@ import { Server as WebSocketServer } from "ws";
 import { FirebaseApp, initializeApp } from "firebase/app";
 import admin from "firebase-admin";
 import cookieParser from "cookie-parser";
-import { FirebaseConnector, PostgreConnector } from "../Database";
+import { FirebaseConnector, PostgresConnector } from "../Database";
 import { FirebaseAuthController } from "../Authentication";
 import { Auth, getAuth } from "firebase/auth";
 
@@ -50,8 +50,14 @@ const fireBaseAdmin = admin.initializeApp({
 const fbConnector = new FirebaseConnector();
 // Initialize Firebase Auth
 const fbAuth: Auth = getAuth(fireBase);
+const fbAuthController = FirebaseAuthController.getInstance(fbAuth);
 // Initialize PostgreSQL
-const pgConnector = new PostgreConnector();
+const pgConnector = PostgresConnector.getInstance();
+
+// Initialize Stripe
+const stripe = new Stripe(process.env.Stripe_sec_key || "no key", {
+	apiVersion: "2024-09-30.acacia",
+});
 
 // Initialize Express
 const app = express();
@@ -69,11 +75,6 @@ app.use(
 const server = http.createServer(app);
 const wsServer = new WebSocketServer({ server });
 
-// Initialize Stripe
-const stripe = new Stripe(process.env.Stripe_sec_key || "no key", {
-	apiVersion: "2024-09-30.acacia",
-});
-
 export {
 	app,
 	server,
@@ -81,6 +82,7 @@ export {
 	fireBase,
 	fireBaseAdmin,
 	fbAuth,
+	fbAuthController,
 	fbConnector,
 	pgConnector,
 	stripe,

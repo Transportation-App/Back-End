@@ -1,3 +1,3 @@
-import * as Configuration from "./Config";
+import * as Configuration from "./Configs";
 
 export default Configuration;
