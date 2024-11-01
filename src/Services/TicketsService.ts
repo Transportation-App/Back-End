@@ -1,14 +1,8 @@
 import { DataSnapshot } from "firebase/database";
 import ConfigureApp from "../Config/Config";
-import {
-  BusType,
-  paymentInfo,
-  SeatFormData,
-  SeatType,
-  TicketType,
-} from "../Types/types";
-import { Models } from "../Database/Postgre/Models";
-import { Op } from "sequelize";
+import { paymentInfo, SeatFormData, TicketType } from "../Types/types";
+import { Models, Utils } from "../Database/Postgre/Models";
+import { Op, where } from "sequelize";
 
 const { fbConnector } = ConfigureApp;
 
@@ -128,5 +122,69 @@ export const storeTickets = async (
       ...transactionData,
     });
     index++;
+  }
+};
+
+export const getMapCoords = async (
+  deptCity: string,
+  arrCity: string
+): Promise<any> => {
+  try {
+    const citiedIDs: Models.City[] = await Models.City.findAll({
+      where: {
+        Name: {
+          [Op.or]: [deptCity, arrCity],
+        },
+      },
+      attributes: ["Id", "Name", "Lng / Lat"],
+    });
+
+    if (citiedIDs.length < 2) {
+      throw new Error("Both departure and arrival cities must be found.");
+    }
+
+    const itineraryData: Models.Itinerary | null =
+      await Models.Itinerary.findOne({
+        where: {
+          DepartureCity: {
+            [Op.eq]: citiedIDs[0].dataValues.Id,
+          },
+          ArrivalCity: {
+            [Op.eq]: citiedIDs[1].dataValues.Id,
+          },
+        },
+        attributes: ["Stops"],
+      });
+
+    if (!itineraryData) {
+      throw new Error("No itinerary found for the specified cities.");
+    }
+
+    const stopsData: Models.Stop | null = await Models.Stop.findOne({
+      where: {
+        Id: itineraryData.dataValues.Stops,
+      },
+    });
+
+    if (!stopsData) {
+      throw new Error("No stops found for the specified itinerary.");
+    }
+
+    const stopsCoords: Models.City[] = await Models.City.findAll({
+      where: {
+        Id: {
+          [Op.or]: [stopsData.dataValues.CityA, stopsData.dataValues.CityB],
+        },
+      },
+      attributes: ["Id", "Name", "Lng / Lat"],
+    });
+
+    const itinerary = [citiedIDs[0], stopsCoords.flat(), citiedIDs[1]].flat();
+
+    return itinerary;
+  } catch (error: any) {
+    throw new Error(
+      error.message || "An error occurred while fetching map coordinates."
+    );
   }
 };

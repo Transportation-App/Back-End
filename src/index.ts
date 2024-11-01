@@ -1,9 +1,10 @@
 import { Cities, Itineraries } from "./Routes";
 import { Authentication, Validation } from "./Middlewares";
 import ConfigureApp from "./Config/Config";
-import cacheRouter from "./Routes/CacheRouter";
+import cacheRouter from "./Routes/CacheRoute";
 import { ticketsRouter } from "./Routes";
 import { initWebSocketServer } from "./Middlewares/webServer";
+import stripeRouter from "./Routes/StripeRoute";
 
 const { app, server, wsServer } = ConfigureApp;
 
@@ -15,6 +16,7 @@ initWebSocketServer(wsServer);
 // Configuration
 
 app.use("/tickets", ticketsRouter);
+app.use("/stripe", stripeRouter);
 app.use("/cache", cacheRouter);
 
 // Validation

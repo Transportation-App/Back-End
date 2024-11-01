@@ -18,7 +18,7 @@ cacheRouter.post(
     const { sessionID, getSeats } = req.body;
 
     const data: { id: string; data: paymentInfo | undefined } =
-      getSessionData(sessionID);
+      getSessionData<paymentInfo>(sessionID);
 
     if (data.data) {
       if (getSeats) {
