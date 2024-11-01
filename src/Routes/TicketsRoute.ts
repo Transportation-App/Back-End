@@ -6,7 +6,7 @@ import bodyParser from "body-parser";
 import Stripe from "stripe";
 import { Cache } from "../Middlewares";
 
-const ticketsRouter: Router = express.Router();
+const ticketsRouter: Router = Router();
 const { stripe } = Configuration;
 
 ticketsRouter.use(bodyParser.raw({ type: "*/*" }));

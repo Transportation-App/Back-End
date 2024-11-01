@@ -1,17 +1,37 @@
-import { Request, Response } from "express";
-import { Models, Utils } from "../Database/Postgre/Models";
+import { NextFunction, Request, Response, Router } from "express";
+import { Models, Utils } from "../Database/Postgres/Models";
+import { Validation } from "../Middlewares";
 
-export async function Get(req: Request, res: Response): Promise<void> {
-  const isFull = req.params.full === "full";
-  if (isFull) res.json(await Models.City.findAll(Utils.fullObjectOption));
-  else {
-    if (req.params.full === undefined) res.json(await Models.City.findAll());
-    else res.status(404).send();
-  }
-}
+const citiesRouter: Router = Router();
 
-export async function Post(req: Request, res: Response): Promise<void> {}
+citiesRouter.get(
+	"/:full?",
+	(req: Request, res: Response, next: NextFunction) => {
+		const full = req.params.full;
+		if (full == "full" || !full) next();
+		else res.status(404).send("Cannot GET " + req.baseUrl + req.url);
+	},
+	async (req: Request, res: Response) => {
+		const full = req.params.full;
+		if (full) res.json(await Models.City.findAll(Utils.fullObjectOption));
+		else res.json(await Models.City.findAll());
+	}
+);
 
-export async function Patch(req: Request, res: Response): Promise<void> {}
+citiesRouter.post(
+	"/",
+	Validation.checkRequestBodyExists,
+	async (req: Request, res: Response) => {}
+);
+citiesRouter.patch(
+	"/",
+	Validation.checkRequestBodyExists,
+	async (req: Request, res: Response) => {}
+);
+citiesRouter.delete(
+	"/",
+	Validation.checkRequestBodyExists,
+	async (req: Request, res: Response) => {}
+);
 
-export async function Delete(req: Request, res: Response): Promise<void> {}
+export default citiesRouter;

@@ -14,7 +14,7 @@ export function checkRequestBodyExists(
 	} else next();
 }
 
-export function checkUrlQueryExists(
+export function checkQueryExists(
 	req: Request,
 	res: Response,
 	next: NextFunction

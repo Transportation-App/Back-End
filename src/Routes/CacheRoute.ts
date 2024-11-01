@@ -1,11 +1,12 @@
 import express, { Router, Request, Response } from "express";
 import { paymentInfo } from "../Types/types";
 import { Cache } from "../Middlewares";
-const cacheRouter: Router = express.Router();
 
-cacheRouter.use(express.json());
+const baseCacheRouter: Router = Router();
 
-cacheRouter.post(
+baseCacheRouter.use(express.json());
+
+baseCacheRouter.post(
 	"/get",
 	(
 		req: Request<{}, {}, { sessionID: string; getSeats?: boolean }>,
@@ -32,7 +33,7 @@ cacheRouter.post(
 	}
 );
 
-cacheRouter.post(
+baseCacheRouter.post(
 	"/check",
 	(req: Request<{}, {}, { sessionID: string }>, res: Response) => {
 		const { sessionID } = req.body;
@@ -47,4 +48,4 @@ cacheRouter.post(
 	}
 );
 
-export default cacheRouter;
+export default baseCacheRouter;

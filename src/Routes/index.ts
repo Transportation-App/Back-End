@@ -1,4 +1,5 @@
-import * as Cities from "./CitiesRoute";
-import * as Itineraries from "./ItinerariesRoute";
+import baseApiRouter from "./BaseApiRoute";
+import baseAuthRouter from "./BaseAuthRoute";
+import baseCacheRouter from "./CacheRoute";
 
-export { Cities, Itineraries };
+export { baseApiRouter, baseAuthRouter, baseCacheRouter };

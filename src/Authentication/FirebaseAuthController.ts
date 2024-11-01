@@ -10,32 +10,48 @@ import {
 import { Logger } from "../Utilities";
 import Configuration from "../Config";
 
-const auth: Auth = Configuration.fbAuth;
-const logger: Logger = new Logger("FirebaseAuthController");
+// const auth: Auth = Configuration.fbAuth;
+// const logger: Logger = new Logger("FirebaseAuthController");
 
 export default class FirebaseAuthController {
-	static async registerUser(req: Request, res: Response): Promise<void> {
+	private static controller: FirebaseAuthController;
+	private auth: Auth;
+	private logger: Logger;
+
+	private constructor(auth: Auth) {
+		this.auth = auth;
+		this.logger = new Logger("FirebaseAuthController");
+		this.logger.logWarning("created");
+	}
+
+	public static getInstance(auth: Auth) {
+		return (
+			this.controller ?? (this.controller = new FirebaseAuthController(auth))
+		);
+	}
+
+	public async registerUser(req: Request, res: Response): Promise<void> {
 		const { email, password } = req.body;
 		try {
 			// const userCredential = await createUserWithEmailAndPassword()
-			await createUserWithEmailAndPassword(auth, email, password);
-			await sendEmailVerification(auth.currentUser as User);
-			logger.logInfo("Registration successfull");
+			await createUserWithEmailAndPassword(this.auth, email, password);
+			await sendEmailVerification(this.auth.currentUser as User);
+			this.logger.logInfo("Registration successfull");
 			res.status(201).json({
 				message: "Verification email sent! User created successfully!",
 			});
 		} catch (error: any) {
-			logger.logError(error.code);
+			this.logger.logError(error.code);
 			const authError = error.customData._tokenResponse.error;
 			res.status(authError.code).json({ error: authError.message });
 		}
 	}
 
-	static async loginUser(req: Request, res: Response) {
+	public async loginUser(req: Request, res: Response) {
 		const { email, password } = req.body;
 		try {
 			const userCredential: any = await signInWithEmailAndPassword(
-				auth,
+				this.auth,
 				email,
 				password
 			);
@@ -48,7 +64,7 @@ export default class FirebaseAuthController {
 						},
 					},
 				};
-			logger.logInfo("Login successfull");
+			this.logger.logInfo("Login successfull");
 			res.cookie("access_token", idToken, {
 				httpOnly: true,
 			});
@@ -56,21 +72,21 @@ export default class FirebaseAuthController {
 				.status(200)
 				.json({ message: "User logged in successfully", userCredential });
 		} catch (error: any) {
-			logger.logError(error);
+			this.logger.logError(error);
 			const authError = error.customData._tokenResponse.error;
 			res.status(authError.code).json({ error: authError.message });
 		} finally {
 		}
 	}
 
-	static async logoutUser(req: Request, res: Response) {
+	public async logoutUser(req: Request, res: Response) {
 		try {
-			await signOut(auth);
-			logger.logInfo("Logout successfull");
+			await signOut(this.auth);
+			this.logger.logInfo("Logout successfull");
 			res.clearCookie("access_token");
 			res.status(200).json({ message: "User logged out successfully" });
 		} catch (error: any) {
-			logger.logError(error);
+			this.logger.logError(error);
 			const authError = error.customData._tokenResponse.error;
 			res.status(authError.code).json({ error: authError.message });
 		}
