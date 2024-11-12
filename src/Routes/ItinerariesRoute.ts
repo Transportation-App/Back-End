@@ -5,17 +5,24 @@ import { Validation } from "../Middlewares";
 const itinerariesRouter: Router = Router();
 
 itinerariesRouter.get(
-	"/:full?",
-	(req: Request, res: Response, next: NextFunction) => {
-		const full = req.params.full;
-		if (full == "full" || !full) next();
-		else res.status(404).send("Cannot GET " + req.baseUrl + req.url);
-	},
-	async (req: Request, res: Response) => {
-		const full = req.params.full;
-		if (full) res.json(await Models.Itinerary.findAll(Utils.fullObjectOption));
-		else res.json(await Models.Itinerary.findAll());
-	}
+    "/:full?",
+    async (req: Request, res: Response, next: NextFunction) => {
+        const full = req.params.full;
+
+        try {
+            const itineraries = full
+                ? await Models.Itinerary.findAll(Utils.fullObjectOption)  // Fetches itineraries with full data (foreign keys)
+                : await Models.Itinerary.findAll();  // Fetches itineraries without additional related data
+            
+			// Log the data before sending it
+			// console.log('Data sent from backend:', JSON.stringify(itineraries, null, 2));
+			
+            res.json(itineraries);
+        } catch (error) {
+            console.error("Error fetching itineraries:", error);
+            res.status(500).json({ error: "Failed to fetch itineraries" });
+        }
+    }
 );
 
 itinerariesRouter.post(

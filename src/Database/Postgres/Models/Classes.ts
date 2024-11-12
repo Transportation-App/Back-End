@@ -2,7 +2,11 @@ import { Model, Sequelize } from "sequelize";
 import initializeAssociations from "./Associations";
 import * as Attributes from "./Attributes";
 
-export class City extends Model {}
+export class City extends Model {
+	destination: any;
+	start: any;
+	id: any;
+}
 export class Discount extends Model {}
 export class Itinerary extends Model {}
 export class Stop extends Model {}

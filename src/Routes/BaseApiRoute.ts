@@ -6,7 +6,7 @@ import { Authentication } from "../Middlewares";
 
 const baseApiRouter: Router = Router();
 
-baseApiRouter.use(Authentication.verifyToken);
+// baseApiRouter.use(Authentication.verifyToken);
 
 // Cities
 baseApiRouter.use("/cities", citiesRouter);
